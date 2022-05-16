@@ -22,8 +22,9 @@ import FormControl from '@mui/material/FormControl';
 
 import MenuItem from '@mui/material/MenuItem';
 
-import { Wrapper, Status } from "@googlemaps/react-wrapper";
-function Map({ center, zoom, setLat, setLng }) {
+import { Wrapper } from "@googlemaps/react-wrapper";
+import { useParams } from "react-router-dom";
+function Map({ center, zoom, prevState, updatePlace }) {
     const mapRef = useRef(null)
     const [map, setMap] = useState()
     useEffect(() => {
@@ -35,29 +36,50 @@ function Map({ center, zoom, setLat, setLng }) {
     useEffect(() => {
         if (map) {
             map.addListener("click", (mapsMouseEvent) => {
-                console.log(mapsMouseEvent)
                 const coordinates = mapsMouseEvent.latLng.toJSON()
-                setLat(coordinates.lat)
-                setLng(coordinates.lng)
+                updatePlace({
+                    ...prevState,
+                    latitude: coordinates.lat,
+                    longitude: coordinates.lng
+                })
             });
         }
     }, [map])
     return (<div ref={mapRef} style={{ height: '400px' }} />)
 }
 function EditPlace() {
-    const [longitude, setLongitude] = useState(28.5)
-    const [latitude, setLatitude] = useState(40.5)
-    const [category, setCategory] = useState(0)
-    const PlaceTitleRef = useRef(null)
+    // const [longitude, setLongitude] = useState(28.5)
+    // const [latitude, setLatitude] = useState(40.5)
+    // const [category, setCategory] = useState(0)
+
     const PlacePicRef = useRef(null)
-    const PlaceDescRef = useRef(null)
-    const PlaceCatIDRef = useRef(null)
-    const PlaceLongRef = useRef(null)
-    const PlaceLatRef = useRef(null)
+
+    const [placeData, setPlaceData] = useState({
+        title: '',
+        description: '',
+        longitude: 28,
+        latitude: 41,
+        Category: {
+            id: null
+        }
+    })
+    const { id } = useParams()
+    useEffect(() => {
+        fetch(`${process.env.REACT_APP_API_URL}places/${id}`)
+            .then(response => {
+                response.json().then(currentPlace => {
+                    setPlaceData(currentPlace.data)
+                })
+            })
+            .catch(e => e)
+    }, [])
+
     const ctx = useContext(AuthContext)
+
     const [serverResponse, setServerResponse] = useState(" ")
     const [snackBarType, setSnackBarType] = useState("success")
     const [openSnackBar, setOpenSnackBar] = useState(false)
+
     const closeSnackBar = () => setOpenSnackBar(false);
 
     const [categoriesData, setCategoriesData] = useState([])
@@ -65,29 +87,21 @@ function EditPlace() {
         fetch(`${process.env.REACT_APP_API_URL}categories`)
             .then(response => {
                 response.json().then(categories => {
-                    console.log(categories.data)
                     setCategoriesData(categories.data)
                 })
             })
     }, [])
     const savePlace = () => {
-        const title = PlaceTitleRef.current.querySelector('input[type=text]').value
-        const description = PlaceDescRef.current.querySelector('input[type=text]').value
-        // const category_id = PlaceCatIDRef.current.querySelector('input[type=text]').value
-        const longitude = PlaceLongRef.current.querySelector('input[type=text]').value
-        const latitude = PlaceLatRef.current.querySelector('input[type=text]').value
         const picture = PlacePicRef.current.querySelector('input[type=file]').files
-        console.log(picture)
         var formdata = new FormData();
-        formdata.append("title", title);
-        formdata.append("description", description);
-        formdata.append("category_id", category);
-        formdata.append("longitude", longitude);
-        formdata.append("latitude", latitude);
+        formdata.append("title", placeData.title);
+        formdata.append("description", placeData.description);
+        formdata.append("category_id", placeData.Category.id);
+        formdata.append("longitude", placeData.longitude);
+        formdata.append("latitude", placeData.latitude);
         formdata.append("picture", picture[0]);
-        console.log(formdata)
-        fetch(`${process.env.REACT_APP_API_URL}places`, {
-            method: 'POST',
+        fetch(`${process.env.REACT_APP_API_URL}places/${id}`, {
+            method: 'PUT',
             headers: {
                 'Authorization': 'Bearer ' + ctx.token
             },
@@ -107,8 +121,12 @@ function EditPlace() {
                 console.error('Error:', error);
             });
     }
-    const handleCategoryChange = (event) => {
-        setCategory(event.target.value)
+
+    const updatePlaceData = (obj) => {
+        setPlaceData({
+            ...placeData,
+            ...obj
+        })
     }
 
     return (
@@ -129,22 +147,22 @@ function EditPlace() {
                                 coloredShadow="info"
                             >
                                 <MDTypography variant="h6" color="white">
-                                    Add Category
+                                    Edit Place
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={4} pb={3} px={3}>
                                 <MDBox component="form" role="form">
                                     <MDBox mb={2}>
-                                        <MDInput type="text" label="Place Title" variant="standard" fullWidth ref={PlaceTitleRef} />
+                                        <MDInput onChange={(e) => {updatePlaceData({title: e.target.value})}} type="text" label="Place Title" variant="standard" fullWidth value={placeData.title} />
                                     </MDBox>
                                     <MDBox mb={2}>
-                                        <MDInput type="text" label="Place Description" variant="standard" fullWidth ref={PlaceDescRef} />
+                                        <MDInput onChange={(e) => {updatePlaceData({description: e.target.value})}} type="text" label="Place Description" variant="standard" fullWidth value={placeData.description} />
                                     </MDBox>
                                     <MDBox mb={2}>
-                                        <MDInput value={latitude} type="text" label="Latitude" variant="standard" fullWidth ref={PlaceLatRef} />
+                                        <MDInput onChange={(e) => {updatePlaceData({latitude: e.target.value})}} type="text" label="Latitude" variant="standard" fullWidth value={placeData.latitude} />
                                     </MDBox>
                                     <MDBox mb={2}>
-                                        <MDInput value={longitude} type="text" label="longitude" variant="standard" fullWidth ref={PlaceLongRef} />
+                                        <MDInput onChange={(e) => {updatePlaceData({longitude: e.target.value})}} type="text" label="longitude" variant="standard" fullWidth value={placeData.longitude} />
                                     </MDBox>
                                     <MDBox mb={2}>
                                         <Box sx={{ minWidth: 120 }}>
@@ -153,9 +171,10 @@ function EditPlace() {
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={category}
+                                                    value={placeData?.Category?.id ?? ''}
                                                     label="Category"
-                                                    onChange={handleCategoryChange}
+                                                    style={{padding: '20px 0'}}
+                                                    onChange={(e) => {updatePlaceData({Category: {id: e.target.value}})}}
                                                 >
                                                     {categoriesData.map((category, i) => {
                                                         return <MenuItem value={category.id} key={category.id}>{category.title}</MenuItem>
@@ -169,7 +188,7 @@ function EditPlace() {
                                     </MDBox>
                                     <MDBox mb={2}>
                                         <Wrapper apiKey={''} >
-                                            <Map center={{ lat: latitude, lng: longitude }} setLat={setLatitude} setLng={setLongitude} zoom={8} />
+                                            <Map center={{ lat: placeData.latitude, lng: placeData.longitude }} zoom={16} updatePlace={setPlaceData} prevState={placeData} />
                                         </Wrapper>
                                     </MDBox>
                                     <MDBox mt={4} mb={1}>

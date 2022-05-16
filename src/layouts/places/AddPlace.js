@@ -129,7 +129,7 @@ function AddPlace() {
                                 coloredShadow="info"
                             >
                                 <MDTypography variant="h6" color="white">
-                                    Add Category
+                                    Add Place
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={4} pb={3} px={3}>
@@ -155,6 +155,7 @@ function AddPlace() {
                                                     id="demo-simple-select"
                                                     value={category}
                                                     label="Category"
+                                                    style={{padding: '20px 0'}}
                                                     onChange={handleCategoryChange}
                                                 >
                                                     {categoriesData.map((category, i) => {

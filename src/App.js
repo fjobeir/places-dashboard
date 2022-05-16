@@ -46,15 +46,19 @@ import createCache from "@emotion/cache";
 // Material Dashboard 2 React routes
 import routes from "routes";
 
+import MDSnackbar from "components/MDSnackbar";
+
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 import { AuthContext } from "context/AuthContext";
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
+import { AppContext } from "context/AppContext";
 
 export default function App() {
 	const ctx = useContext(AuthContext)
+	const appCtx = useContext(AppContext)
 	const [controller, dispatch] = useMaterialUIController();
 	const {
 		miniSidenav,
@@ -199,6 +203,17 @@ export default function App() {
 				{getRoutes(routes)}
 				<Route path="*" element={<Navigate to="/sign-in" />} />
 			</Routes>
+			<MDSnackbar
+                color={appCtx.snackbar.type}
+                icon={appCtx.snackbar.type == 'success' ? 'check' : 'warning'}
+                title="Places App"
+                content={appCtx.snackbar.message}
+                open={appCtx.snackbar.open}
+                // onClose={closeSnackBar}
+                close={appCtx.snackbar.closeSnackBar}
+                dateTime=""
+                bgWhite
+            />
 		</ThemeProvider>
 	);
 }

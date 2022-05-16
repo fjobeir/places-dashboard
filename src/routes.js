@@ -37,11 +37,11 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
-import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
-import Notifications from "layouts/notifications";
-import Profile from "layouts/profile";
+// import Tables from "layouts/tables";
+// import Billing from "layouts/billing";
+// import RTL from "layouts/rtl";
+// import Notifications from "layouts/notifications";
+// import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignOut from "layouts/authentication/sign-out";
 import Places from "layouts/places";
@@ -52,7 +52,10 @@ import Categories from "layouts/categories";
 import AddCategory from "layouts/categories/AddCategory";
 import EditCategory from "layouts/categories/EditCategory";
 import AddPlace from "layouts/places/AddPlace";
-
+import EditPlace from "layouts/places/EditPlace";
+import Admins from "layouts/admins";
+import AddAdmin from "layouts/admins/AddAdmin";
+import EditAdmin from "layouts/admins/EditAdmin";
 
 const routes = [
   {
@@ -87,6 +90,16 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Edit Place",
+    key: "edit-place",
+    icon: <Icon fontSize="small">grid_on</Icon>,
+    route: "/places/edit/:id",
+    component: <EditPlace />,
+    requiresAuth: true,
+    inSideNav: false,
+  },
+  {
+    type: "collapse",
     name: "Categories",
     key: "categories",
     icon: <Icon fontSize="small">grid_on</Icon>,
@@ -115,9 +128,23 @@ const routes = [
     key: "admins",
     icon: <Icon fontSize="small">people</Icon>,
     route: "/admins",
-    component: <Categories />,
+    component: <Admins />,
     requiresAuth: true,
     inSideNav: true,
+  },
+  {
+    key: "add-admin",
+    route: "/admins/add",
+    component: <AddAdmin />,
+    requiresAuth: true,
+    inSideNav: false,
+  },
+  {
+    key: "add-admin",
+    route: "/admins/edit/:id",
+    component: <EditAdmin />,
+    requiresAuth: true,
+    inSideNav: false,
   },
   // {
   //   type: "collapse",

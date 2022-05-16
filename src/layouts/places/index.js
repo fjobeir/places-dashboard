@@ -20,7 +20,6 @@ const columns = [
 	{ Header: "location", accessor: "location", align: "center" },
 	{ Header: "actions", accessor: "actions", align: "center" },
 ]
-// const rows = []
 
 function Places() {
 	const [rows, setRows] = useState([])
@@ -56,6 +55,11 @@ function Places() {
 								<MDButton variant="text" color="error" onClick={() => {deletePlace(place.id)}}>
 									<Icon>delete</Icon>&nbsp;delete
 								</MDButton>
+								<Link to={`/places/edit/${place.id}`}>
+									<MDButton variant="text" color="info">
+										<Icon>edit</Icon>&nbsp;edit
+									</MDButton>
+								</Link>
 							</>,
 						}
 					})
