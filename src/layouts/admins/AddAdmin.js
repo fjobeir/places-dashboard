@@ -9,17 +9,12 @@ import MDBox from "components/MDBox";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 
-import { useContext, useRef, useState } from "react";
-import { AuthContext } from "context/AuthContext";
-import { AppContext } from "context/AppContext";
-import { useRequest } from "lib/functions";
+import { useRef } from "react";
+import { useRequest } from "lib/hooks/useRequest";
 
 function AddAdmin() {
 
-    const ctx = useContext(AuthContext)
-    const appCtx = useContext(AppContext)
-
-    const request = useRequest()
+    const sendRequest = useRequest()
 
     const nameRef = useRef(null)
     const emailRef = useRef(null)
@@ -32,35 +27,17 @@ function AddAdmin() {
         const password = passwordRef.current.querySelector('input[type=password]').value
         const password_confirmation = passwordConfirmationRef.current.querySelector('input[type=password]').value
 
-
-        useRequest(`${process.env.REACT_APP_API_URL}admins`, {}, {
+        sendRequest(`${process.env.REACT_APP_API_URL}admins`, {}, {
             name,
             email,
             password,
             password_confirmation
         }, {
             auth: true,
-            type: 'json'
+            type: 'json',
+            snackbar: true,
+            redirect: '/admins'
         }, 'post')
-
-        // fetch(`${process.env.REACT_APP_API_URL}admins`, {
-        //     method: 'post',
-        //     body: JSON.stringify(),
-        //     headers: {
-        //         'Content-Type':'application/json',
-        //         'Authorization': 'Bearer ' + ctx.token
-        //     }
-        // }).then(response => {
-        //     response.json().then(adminAdded => {
-        //         appCtx.snackbar.setMessage(adminAdded.messages.join(' '))
-        //         if (adminAdded.success) {
-        //             appCtx.snackbar.setType('success')
-        //         } else {
-        //             appCtx.snackbar.setType('error')
-        //         }
-        //         appCtx.snackbar.setOpen(true)
-        //     })
-        // }).catch(e => e)
     }
 
     return (
@@ -84,7 +61,7 @@ function AddAdmin() {
                                     <MDBox mb={2}>
                                         <MDInput ref={passwordConfirmationRef} type="password" label="Password Confirmation" variant="standard" fullWidth />
                                     </MDBox>
-                                    
+
                                     <MDBox mt={4} mb={1}>
                                         <MDButton variant="gradient" color="info" fullWidth onClick={addAdmin}>
                                             add admin
@@ -96,9 +73,6 @@ function AddAdmin() {
                     </Grid>
                 </Grid>
             </MDBox>
-
-            
-
         </DashboardLayout>
     )
 }

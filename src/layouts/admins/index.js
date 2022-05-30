@@ -13,6 +13,7 @@ import Icon from "@mui/material/Icon";
 import MDButton from "components/MDButton";
 
 import { AuthContext } from "context/AuthContext";
+import { useRequest } from "lib/hooks/useRequest";
 import { Link } from "react-router-dom";
 
 const columns = [
@@ -25,20 +26,21 @@ function Admins() {
     const [rows, setRows] = useState([])
     const ctx = useContext(AuthContext)
 
+    const sendRequest = useRequest()
+
     const deleteAdmin = (adminId) => {
         if (window.confirm('Are you sure')) {
-            fetch(`${process.env.REACT_APP_API_URL}admins/${adminId}`, {
-                method: "DELETE",
-                headers: {
-                    'Authorization': 'Bearer ' + ctx.token
-                }
-            }).then(response => {
-                response.json()
-                    .then(deleted => {
-                        console.log(deleted)
-                    })
+            sendRequest(`${process.env.REACT_APP_API_URL}admins/${adminId}`, {}, {}, {
+                auth: true,
+                snackbar: true,
+            }, 'delete').then(() => {
+                const updatedRows = rows.filter(function(row) {
+                    console.log(row.id, adminId)
+                    return (row.id != adminId)
+                })
+                console.log(updatedRows)
+                setRows(updatedRows)
             })
-                .catch(e => e)
         }
     }
 
@@ -52,6 +54,7 @@ function Admins() {
                 response.json().then(admins => {
                     const alladmins = admins.data.map((admin) => {
                         return {
+                            id: admin.id,
                             name: <>{admin.name}</>,
                             email: <>{admin.email}</>,
                             actions: <>
